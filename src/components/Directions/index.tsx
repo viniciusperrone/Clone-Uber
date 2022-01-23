@@ -15,9 +15,9 @@ type DirectionsProps = {
         latitudeDelta: number;
         longitudeDelta: number;
     };
-    onReady: () => any;
+    onReady: (params: any) => void;
 }
-const Directions: React.FC<DirectionsProps> = ({ destination, origin, onReady }) => (
+const Directions: React.FC<DirectionsProps> = ({ origin, destination, onReady }) => (
     <MapViewDirections
         origin={origin}
         destination={destination}
