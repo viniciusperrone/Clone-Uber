@@ -4,13 +4,17 @@ import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplet
 
 import { KEY_API } from '@env';
 
-const Search: React.FC = () => (
+type SearchProps = {
+    onLocationSelected: (data: Object, details: Object) => void;
+};
+const Search: React.FC<SearchProps> = ({ onLocationSelected }) => (
     <GooglePlacesAutocomplete
         placeholder='Para onde vamos?'
         query={{
             key: KEY_API,
             language: 'pt'
         }}
+        onPress={(data, details) => onLocationSelected(data, Object(details))}
         textInputProps={{
             autoCapitalize: 'none',
             autoCorrect: false
