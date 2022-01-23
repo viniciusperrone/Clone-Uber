@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { View } from 'react-native';
+
 import MapView, { Marker } from 'react-native-maps';
 import * as Location from 'expo-location';
 import * as Permissions from 'expo-permissions';
+import Geocoder from 'react-native-geocoding';
 
 import Search from '../Search';
 import Directions from '../Directions';
@@ -10,7 +12,9 @@ import Directions from '../Directions';
 import markedImage from '../../assets/marker.png';
 
 import { getPixelSize } from '../../utils/handlePixels';
-import { styles, LocationBox, LocationText } from './style';
+import { styles, LocationBox, LocationText, LocationTimeBox, LocationTimeText, LocationTimeTextSmall } from './style';
+
+import { KEY_API } from '@env';
 
 type Region = {
   latitude: number;
@@ -24,10 +28,20 @@ type Destination = {
   longitude: number;
   title: string;
 };
+
+type Home = {
+  duration: number;
+  address: string;
+};
+
+Geocoder.init(KEY_API);
+
 const Maps: React.FC = () => {
 
   const [mapsView, setMapsView] = useState<MapView>();
   const [statusMsg, setStatusMsg] = useState<string>();
+  const [city, setCity] = useState<string>('Destino');
+  const [home, setHome] = useState({} as Home);
   const [region, setRegion] = useState({} as Region);
   const [destination, setDestination] = useState({} as Destination);
 
@@ -36,6 +50,8 @@ const Maps: React.FC = () => {
 
     const { geometry: { location: { lat: latitude, lng: longitude } } } = details;
 
+    setCity(String(data.structured_formatting.main_text));
+    
     setDestination({
       latitude: latitude,
       longitude: longitude,
@@ -45,7 +61,6 @@ const Maps: React.FC = () => {
   }
 
   useEffect(() => {
-
     const getLocation = async () => {
       const { status } = await Permissions.askAsync(Permissions.LOCATION);
 
@@ -55,6 +70,16 @@ const Maps: React.FC = () => {
       }
 
       const { coords: { latitude, longitude } } = await Location.getCurrentPositionAsync();
+      
+      const response = await Geocoder.from({ latitude, longitude });
+
+      const address = response.results[0].formatted_address;
+      const location = address.substring(0, address.indexOf(',')); 
+
+      setHome({
+        duration: home.duration,
+        address: location
+      });
 
       setRegion({
         latitude: latitude,
@@ -83,6 +108,10 @@ const Maps: React.FC = () => {
                 origin={region}
                 destination={destination}
                 onReady={(result) => {
+                  setHome({
+                    duration: Math.floor(result.duration),
+                    address: home.address
+                  });
                   mapsView?.fitToCoordinates(result.coordinates, {
                     edgePadding: {
                       right: Number(getPixelSize(50)),
@@ -93,17 +122,30 @@ const Maps: React.FC = () => {
                   });
                 }}
               />
-              <Marker
+              {/* <Marker
                 coordinate={destination}
                 anchor={{ x: 0, y: 0 }}
                 image={markedImage}
               >
                 <LocationBox>
                   <LocationText>
-                    {destination.title}
+                    {city}
                   </LocationText>
                 </LocationBox>
               </Marker>
+
+              <Marker
+                coordinate={region}
+                anchor={{ x: 0, y: 0 }}
+              >
+                <LocationBox>
+                  <LocationTimeBox>
+                    <LocationTimeText>{home.duration}</LocationTimeText>
+                    <LocationTimeTextSmall> MIN</LocationTimeTextSmall>
+                  </LocationTimeBox>
+                  <LocationText>{home.address}</LocationText>
+                </LocationBox>
+              </Marker> */}
             </>
           )}
       </MapView>

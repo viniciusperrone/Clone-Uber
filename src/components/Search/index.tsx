@@ -16,7 +16,7 @@ const Search: React.FC<SearchProps> = ({ onLocationSelected }) => {
                 key: KEY_API,
                 language: 'pt'
             }}
-            onPress={(data, details) => onLocationSelected(data, Object(details))}
+            onPress={(data, details) => { onLocationSelected(data, Object(details)) }}
             textInputProps={{
                 onFocus: () => setSearchFocused(true),
                 onBlur: () => setSearchFocused(false),
