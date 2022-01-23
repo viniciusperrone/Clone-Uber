@@ -14,6 +14,12 @@ export const styles = StyleSheet.create({
   },
 });
 
+export const Back = styled.TouchableOpacity`
+  position: absolute;
+  top: ${Platform.select({ ios: 60, android: 40 })};
+  left: 20px
+`;
+
 export const LocationBox = styled.View`
   background: #FFF;
   shadow-color: #000;

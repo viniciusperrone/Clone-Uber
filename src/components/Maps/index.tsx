@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View } from 'react-native';
+import { View, Image } from 'react-native';
 
 import MapView, { Marker } from 'react-native-maps';
 import * as Location from 'expo-location';
@@ -8,11 +8,14 @@ import Geocoder from 'react-native-geocoding';
 
 import Search from '../Search';
 import Directions from '../Directions';
+import Details from '../Details'; 
 
 import markedImage from '../../assets/marker.png';
+import backImage from '../../assets/back.png';
+
 
 import { getPixelSize } from '../../utils/handlePixels';
-import { styles, LocationBox, LocationText, LocationTimeBox, LocationTimeText, LocationTimeTextSmall } from './style';
+import { styles, LocationBox, LocationText, LocationTimeBox, LocationTimeText, LocationTimeTextSmall, c, Back } from './style';
 
 import { KEY_API } from '@env';
 
@@ -60,6 +63,10 @@ const Maps: React.FC = () => {
 
   }
 
+  function handleBack(){
+    setDestination(null)
+  }
+
   useEffect(() => {
     const getLocation = async () => {
       const { status } = await Permissions.askAsync(Permissions.LOCATION);
@@ -70,7 +77,14 @@ const Maps: React.FC = () => {
       }
 
       const { coords: { latitude, longitude } } = await Location.getCurrentPositionAsync();
-      
+
+      setRegion({
+        latitude: latitude,
+        longitude: longitude,
+        latitudeDelta: 0.0043,
+        longitudeDelta: 0.0034
+      });
+
       const response = await Geocoder.from({ latitude, longitude });
 
       const address = response.results[0].formatted_address;
@@ -81,12 +95,7 @@ const Maps: React.FC = () => {
         address: location
       });
 
-      setRegion({
-        latitude: latitude,
-        longitude: longitude,
-        latitudeDelta: 0.0043,
-        longitudeDelta: 0.0034
-      });
+      
     }
 
     getLocation();
@@ -117,15 +126,16 @@ const Maps: React.FC = () => {
                       right: Number(getPixelSize(50)),
                       left: Number(getPixelSize(50)),
                       top: Number(getPixelSize(50)),
-                      bottom: Number(getPixelSize(50))
+                      bottom: Number(getPixelSize(350))
                     }
                   });
                 }}
               />
-              {/* <Marker
+              <Marker
                 coordinate={destination}
                 anchor={{ x: 0, y: 0 }}
                 image={markedImage}
+                
               >
                 <LocationBox>
                   <LocationText>
@@ -145,12 +155,23 @@ const Maps: React.FC = () => {
                   </LocationTimeBox>
                   <LocationText>{home.address}</LocationText>
                 </LocationBox>
-              </Marker> */}
+              </Marker>
             </>
           )}
       </MapView>
 
-      <Search onLocationSelected={handleLocationSelected} />
+      {
+        destination ? (
+          <>
+            <Back onPress={handleBack}>
+              <Image source={backImage}/>
+            </Back>
+          <Details />
+          </>
+        ) : (
+          <Search onLocationSelected={handleLocationSelected} />
+        )
+      }
     </View>
   );
 }
