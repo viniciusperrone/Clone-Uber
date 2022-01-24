@@ -1,6 +1,6 @@
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, View, Dimensions } from 'react-native';
 
+import Background from './src/components/Background';
 import Maps from './src/components/Maps';
 
 export default function App() {
@@ -10,7 +10,9 @@ export default function App() {
         style="auto"
         translucent
       />
-      <Maps />
+      <Background>
+        <Maps />
+      </Background>
     </>
   );
 }
